@@ -1,37 +1,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <windows.h>
+#include <time.h>
 
-typedef struct {
-    bool gameRunning;
-    int userScore;
-    int AIScore;
-} gameValues;
-
-typedef struct {
-    int size_X;
-    int size_Y;
-} mapCoordinates;
-
-typedef struct {
-    int ball_X;
-    int ball_Y;
-    bool moveUpwards;
-} ballCoordinates;
-
-
-void initMenu();
-void startGame();
-void updateMap(int size_X, int size_Y, int ball_X, int ball_Y);
-void Score(gameValues* values, ballCoordinates* ballCords);
-
+#include "structs.h"
+#include "prototypes.h"
 
 int main() {
-
     int userChoice = 0;
-
+    
     initMenu();
-
     printf("Write your choice here: ");
     scanf("%d", &userChoice);
 
@@ -62,10 +40,19 @@ void initMenu() {
 
 void startGame() {
     system("cls");
+    srand(time(NULL));
+    int random = (rand() % (2 - 1 + 1)) + 1;
 
     ballCoordinates ballCords;
     mapCoordinates map;
     gameValues values;
+
+    
+    if (random == 1) {
+        values.side = true;
+    } else {
+        values.side = false;
+    }
 
     values.gameRunning = true;
     values.userScore = 0;
@@ -74,14 +61,13 @@ void startGame() {
     map.size_X = 32;
     map.size_Y = 10;
 
-    //default
     ballCords.moveUpwards = false;
-    ballCords.ball_X = 15; // 15 because 0 and 32 is wall
+    ballCords.ball_X = 15;
     ballCords.ball_Y = 5;
 
     while (values.gameRunning) {
         Sleep(750);
-        if (ballCords.ball_X == 0) {
+        if (ballCords.ball_X < 0) {
             Score(&values, &ballCords);
         }
         if (ballCords.ball_X == map.size_X + 1) {
@@ -92,15 +78,22 @@ void startGame() {
             ballCords.moveUpwards = true;
         }
 
-        if(!ballCords.moveUpwards) {
+        updateMap(map.size_X, map.size_Y, ballCords.ball_X, ballCords.ball_Y);
+
+        if(!ballCords.moveUpwards && values.side == true) {
             ballCords.ball_X+=2;
             ballCords.ball_Y++;
-        } else {
+        } else if (ballCords.moveUpwards && values.side == true) {
             ballCords.ball_X+=2;
+            ballCords.ball_Y--;
+        } else if (!ballCords.moveUpwards && values.side == false) {
+            ballCords.ball_X-=2;
+            ballCords.ball_Y++;
+        } else if (ballCords.moveUpwards && values.side == false) {
+            ballCords.ball_X-=2;
             ballCords.ball_Y--;
         }
 
-        updateMap(map.size_X, map.size_Y, ballCords.ball_X, ballCords.ball_Y);
     }
 }
 
@@ -146,8 +139,16 @@ void updateMap(int size_X, int size_Y, int ball_X, int ball_Y)
 }
 
 void Score(gameValues* values, ballCoordinates* ballCords) {
-    if (ballCords->ball_X == 0) 
+    if (ballCords->ball_X < 0) 
     {
+        srand(time(NULL));
+        int random = (rand() % (2 - 1 + 1)) + 1;
+        if (random == 1) {
+            values->side = true;
+        } else {
+            values->side = false;
+        }
+
         values->gameRunning = false;
         values->AIScore++;
 
@@ -160,6 +161,14 @@ void Score(gameValues* values, ballCoordinates* ballCords) {
         ballCords->moveUpwards = false;
         values->gameRunning = true;
     } else {
+        srand(time(NULL));
+        int random = (rand() % (2 - 1 + 1)) + 1;
+        if (random == 1) {
+            values->side = true;
+        } else {
+            values->side = false;
+        }
+
         values->gameRunning = false;
         values->userScore++;
 
