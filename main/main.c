@@ -3,6 +3,11 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+struct Scores {
+    int userScore;
+    int AIScore;
+};
+
 struct mapCoordinates {
     int size_X;
     int size_Y;
@@ -17,6 +22,7 @@ struct ballCoordinates {
 void initMenu();
 void startGame();
 void updateMap(int size_X, int size_Y, int ball_X, int ball_Y);
+void gameOver();
 
 int main() {
 
@@ -56,21 +62,36 @@ void initMenu() {
 
 void startGame() {
     system("cls");
-    
     struct ballCoordinates ballCords;
     struct mapCoordinates map;
     map.size_X = 32;
     map.size_Y = 10;
 
     //default
+    bool moveUpwards = false;
     ballCords.ball_X = 15; // 15 because 0 and 32 is wall
     ballCords.ball_Y = 5;
 
     while (true) {
         sleep(1);
-        updateMap(map.size_X,map.size_Y,ballCords.ball_X,ballCords.ball_Y);
-        ballCords.ball_X+=2;
-        ballCords.ball_Y++;
+        if (ballCords.ball_X == map.size_X + 1) {
+            gameOver();
+            break;
+        }
+
+        if (ballCords.ball_Y >= map.size_Y - 1) {
+            moveUpwards = true;
+        }
+
+        if(!moveUpwards) {
+            ballCords.ball_X+=2;
+            ballCords.ball_Y++;
+        } else {
+            ballCords.ball_X+=2;
+            ballCords.ball_Y--;
+        }
+
+        updateMap(map.size_X, map.size_Y, ballCords.ball_X, ballCords.ball_Y);
     }
 }
 
@@ -80,25 +101,29 @@ void updateMap(int size_X, int size_Y, int ball_X, int ball_Y)
     for (int y = 0; y <= size_Y; y++) { // Y
         for (int x = 0; x <= size_X; x++) { // X
 
-            // walls
+            // ball on map
+            if(x == ball_X && y == ball_Y) {
+                printf("*");
+            }
 
-            if (x == 0 && y >= 0 || x == size_X && y <= size_Y) {
+            // paddle local player
+            else if (x == 0 && y == size_Y / 2) {
+                printf("|");
+            }
+
+            // paddle ai
+            else if (x == size_X && y == size_Y / 2) {
                 printf("|");
             }
 
             // top & bottom
- 
-            if (x >= 0 && y == 0 && x < size_X || x >= 0 && y == size_Y && x < size_X) {
+            else if (y == 0 || y == size_Y) {
                 printf("-");
             }
-            
-            // ball position
 
-            else if(x == ball_X && y == ball_Y) {
-                printf("*");
-
-            // print whitespace
-
+            // walls
+            else if (x == 0 || x == size_X) {
+                printf(":");
             } else {
                 printf(" ");
             }
@@ -107,4 +132,12 @@ void updateMap(int size_X, int size_Y, int ball_X, int ball_Y)
 
         printf("\n");
     }
+
+    printf("Ball X: %d \n", ball_X);
+    printf("Ball Y: %d \n", ball_Y);
+}
+
+void gameOver() {
+    system("cls");
+    printf("Game over!");
 }
