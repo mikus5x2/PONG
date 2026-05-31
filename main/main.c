@@ -3,6 +3,17 @@
 #include <unistd.h>
 #include <stdbool.h>
 
+struct mapCoordinates {
+    int size_X;
+    int size_Y;
+};
+
+struct ballCoordinates {
+    int ball_X;
+    int ball_Y;
+};
+
+
 void initMenu();
 void startGame();
 void updateMap(int size_X, int size_Y, int ball_X, int ball_Y);
@@ -45,18 +56,21 @@ void initMenu() {
 
 void startGame() {
     system("cls");
+    
+    struct ballCoordinates ballCords;
+    struct mapCoordinates map;
+    map.size_X = 32;
+    map.size_Y = 10;
 
-    int size_X = 32;
-    int size_Y = 10;
     //default
-    int ball_X = 15; // 15 because 0 and 32 is wall
-    int ball_Y = 5;
+    ballCords.ball_X = 15; // 15 because 0 and 32 is wall
+    ballCords.ball_Y = 5;
 
     while (true) {
         sleep(1);
-        updateMap(size_X,size_Y,ball_X,ball_Y);
-        ball_X+=2;
-        ball_Y++;
+        updateMap(map.size_X,map.size_Y,ballCords.ball_X,ballCords.ball_Y);
+        ballCords.ball_X+=2;
+        ballCords.ball_Y++;
     }
 }
 
@@ -73,7 +87,7 @@ void updateMap(int size_X, int size_Y, int ball_X, int ball_Y)
             }
 
             // top & bottom
-
+ 
             if (x >= 0 && y == 0 && x < size_X || x >= 0 && y == size_Y && x < size_X) {
                 printf("-");
             }
